@@ -1,58 +1,51 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom';
 import EmployeeService from '../services/EmployeeService';
-import { useNavigate } from 'react-router-dom';
 
-const AddEmployee = () => {
-
+const UpdateEmployee = () => {
+    const {id} = useParams();
+    const navigate = useNavigate();
     const [employee, setEmployee] = useState({
-        id: "",
+        id: id,
         firstName: "",
         lastName: "",
         emailId: "",
     });
-
-    const navigate = useNavigate();
-
+ 
     const handleChange = (e) => {
         const value = e.target.value;
         setEmployee({...employee, [e.target.name]: value});
     }
 
-    const saveEmployee = (event) => {
-      event.preventDefault()
-      EmployeeService
-        .saveEmployee(employee)
-        .then(returnedData => {
-          console.log(returnedData);
-          navigate("/employeeList");
-        })
-      }
-    // const saveEmployee = (e) => {
-    //     e.preventDefault();
-    //     EmployeeService.saveEmployee(employee);
-    //     // .than((response) => {
-    //     //    console.log(response);
-    //     // })
-    //     // .catch((error) => {
-    //     //     console.log(error);
-    //     // })
-    // }
+    useEffect(() => {
+      const fetchData = async () =>{
+        try{
+           const responce = await EmployeeService.getElementById(id);
+           setEmployee(responce.data);
+        } catch (error) {
+            console.log(error);
+        }
+      };
+      fetchData();
+    }, [])
+    
 
-    const reset = (e) => {
+    const updateEmployee = (e) => {
       e.preventDefault();
-      setEmployee({
-        id: "",
-        firstName: "",
-        lastName: "",
-        emailId: "",
-    });
+
+      EmployeeService.updateEmplooye(employee, id)
+      .then((responce) => {
+        console.log(responce)
+        navigate("/employeeList");
+      });
     }
+
 
   return (
     <div className='flex max-w-2xl mx-auto shadow border-b'>
          <div className='px-8 py-8'>
             <div className='font-thin text-2xl tracking-wider'>
-                <h1>Add New Employee</h1>
+                <h1>Update Employee</h1>
             </div>
             <div className='item-center justify-center h-14 w-full my-4 '>
                <label className='block text-gray-600 text-sm font-normal'>
@@ -89,14 +82,14 @@ const AddEmployee = () => {
             </div>
             <div className='item-center justify-center h-14 w-full my-4 space-x-4'>
               <button
-                onClick={saveEmployee}
+                onClick={updateEmployee}
                 className='rounded text-white font-semibold bg-green-400 hover:bg-green-700 py-2 px-6 '>
-                 Save
+                 Update
               </button>
               <button
-               onClick={reset} 
-               className='rounded text-white font-semibold bg-red-400 hover:bg-red-700 py-2 px-6'>
-                Clear
+                onClick={() => navigate("/employeeList")}
+                className='rounded text-white font-semibold bg-red-400 hover:bg-red-700 py-2 px-6'>
+                Cancel
               </button>
             </div>
          </div>
@@ -104,4 +97,4 @@ const AddEmployee = () => {
   )
 }
 
-export default AddEmployee;
+export default UpdateEmployee;
